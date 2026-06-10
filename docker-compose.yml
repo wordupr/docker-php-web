@@ -1,11 +1,8 @@
-version: '3.8'
-
 services:
   nginx:
     image: nginx:latest
     ports:
       - 80:80
-      - 443:443
     restart: always
     volumes:
       # nginx配置文件
@@ -17,39 +14,36 @@ services:
       - backend
     environment:
       - TZ=Asia/Shanghai
-    links: 
-      - php82
+    links:
+      - php84
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
 
-  certbot:
-    image: certbot/certbot
-    container_name: certbot
-    volumes:
-      - ./www/certbot/:/var/www/certbot/:rw
-      - ./nginx/ssl/:/etc/letsencrypt/:rw
-    networks:
-      - backend
-    environment:
-      - TZ=Asia/Shanghai
-
-  php82:
+  php84:
     build:
-      context: ./php82
-    container_name: php82
+      context: ./php84
+    container_name: php84
     restart: always
     volumes:
       # php 配置文件
-      - ./php82/etc/php.ini:/usr/local/etc/php/php.ini:ro
-      - ./php82/etc/conf.d/docker-php-ext-opcache.ini:/usr/local/etc/php/conf.d/docker-php-ext-opcache.ini:ro
-      - ./php82/etc/php-fpm.d:/usr/local/etc/php-fpm.d:ro
+      - ./php84/etc/php.ini:/usr/local/etc/php/php.ini:ro
+      - ./php84/etc/conf.d/docker-php-ext-opcache.ini:/usr/local/etc/php/conf.d/docker-php-ext-opcache.ini:ro
+      - ./php84/etc/php-fpm.d:/usr/local/etc/php-fpm.d:ro
       # 项目代码
       - ./www:/var/www/
     networks:
       - backend
     environment:
       - TZ=Asia/Shanghai
-    links: 
+    links:
       - mysql
       - redis
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
     
   mysql:
     image: mysql:latest
@@ -63,6 +57,10 @@ services:
     restart: always   
     networks:
       - backend
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
 
   redis:
     image: redis:latest
@@ -71,6 +69,13 @@ services:
       - backend
     environment:
       - TZ=Asia/Shanghai
+    volumes:
+      - ./redis1/data:/data
+    command: ["redis-server", "--save", "60", "1", "--dir", "/data"]
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
 
 
 networks:

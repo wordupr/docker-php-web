@@ -1,9 +1,14 @@
-FROM php:8.2-fpm
+FROM php:8.4-fpm
 
 LABEL maintainer="pi@wordupr.com"
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
+    libcurl4-openssl-dev \
+    libgmp-dev \
+    libonig-dev \
+    libyaml-dev \
+    libsodium-dev \
     libicu-dev \
     libz-dev \
     libpq-dev \
@@ -38,6 +43,10 @@ RUN docker-php-ext-configure bcmath --enable-bcmath \
         zip \
         soap \
         exif \
+        curl \
+        fileinfo \
+        gmp \
+        xml \
   && docker-php-ext-install opcache \
   && docker-php-ext-enable opcache
 
@@ -49,7 +58,7 @@ RUN pecl install -o -f redis && docker-php-ext-enable redis;
 
 RUN pecl install -o -f protobuf  && docker-php-ext-enable protobuf;
 
-RUN pecl install -o -f swoole && docker-php-ext-enable swoole;
+RUN pecl install -o -f yaml && docker-php-ext-enable yaml;
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
 
